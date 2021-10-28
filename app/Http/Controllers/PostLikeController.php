@@ -19,10 +19,13 @@ class PostLikeController extends Controller
             return response(null, 409);
         }
 
-        $post->likes()->create([
-            'user_id' => $request->user()->id,
-
-        ]);
+        if ($post->likes()->onlyTrashed()->where('user_id', $request->user()->id)) {
+            $post->likes()->onlyTrashed()->where('user_id', $request->user()->id)->restore();
+        } else {
+            $post->likes()->create([
+                'user_id' => $request->user()->id,
+            ]);
+        }
         return back();
     }
 
